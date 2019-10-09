@@ -4,6 +4,7 @@ import AuthPresenter from './AuthPresenter';
 import { useMutation } from "react-apollo-hooks";
 import { LOG_IN, CREATE_ACCOUNT } from './AuthQueries';
 import { toast } from "react-toastify";
+import { async } from "q";
 
 
 
@@ -27,7 +28,7 @@ export default () => {
     });
 
 
-    const createAccount = useMutation(CREATE_ACCOUNT, {
+    const [createAccountMutation] = useMutation(CREATE_ACCOUNT, {
         variables: {
             email: email.value,
             username: username.value,
@@ -36,11 +37,16 @@ export default () => {
         }
     })
 
-  const onSubmit = e => {
+  const onSubmit = async(e) => {
       e.preventDefault();
       if(action === 'logIn') {
         if(email !== '') {
-            requestSecret();
+            try {
+                await requestSecret();
+            } catch {
+                toast.error('비밀번호를 만들수없습니다 다시시도해주세요.');
+            }
+            
         } else {
             toast.error("이메일을 입력해주세요.");
         }
@@ -50,7 +56,19 @@ export default () => {
             firstName.value !== '' &&
             lastName.value !== ''
           ) {
-              createAccount();
+              try {
+                const { createAccount } = await createAccountMutation();
+                if(!createAccount) {
+                    toast.error('회원가입 실패');
+                } else {
+                    toast.success('회원가입하였습니다. 로그인해주세요.');
+                    setTimeout(() => {
+                        setAction('logIn')
+                    }, 3000);
+                }
+              }catch(e) {
+                  toast.error(e);
+              }
           } else {
               toast.error('모든 정보를 입력해주세요.');
           }
