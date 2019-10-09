@@ -4,7 +4,6 @@ import AuthPresenter from './AuthPresenter';
 import { useMutation } from "react-apollo-hooks";
 import { LOG_IN, CREATE_ACCOUNT } from './AuthQueries';
 import { toast } from "react-toastify";
-import { async } from "q";
 
 
 
@@ -13,17 +12,9 @@ export default () => {
   const username = useInput('');
   const firstName = useInput('');
   const lastName = useInput('');
+  const secret = useInput('');
   const email = useInput('');
-  const [requestSecret] = useMutation(LOG_IN, {
-      update: (_, { data }) => {
-          const { requestSecret } = data;
-          if(!requestSecret) {
-              toast.error('계정이 존재하지않습니다. 회원가입해주세요.');
-              setTimeout(() => {
-                  setAction('signUp', 200);
-              })
-          }
-      },
+  const [requestSecretMutation] = useMutation(LOG_IN, {
       variables: { email: email.value} 
     });
 
@@ -42,7 +33,16 @@ export default () => {
       if(action === 'logIn') {
         if(email !== '') {
             try {
-                await requestSecret();
+                const {data: { requestSecret } } = await requestSecretMutation();
+                if(!requestSecret) {
+                    toast.error('회원가입해주세여');
+                    setTimeout(() => {
+                       setAction('signUp') 
+                    }, 3000);
+                } else {
+                    toast.success('로그인 시크릿을 확인해주세요.');
+                    setAction('confirm');
+                }
             } catch {
                 toast.error('비밀번호를 만들수없습니다 다시시도해주세요.');
             }
@@ -57,7 +57,7 @@ export default () => {
             lastName.value !== ''
           ) {
               try {
-                const { createAccount } = await createAccountMutation();
+                const { data: {createAccount} } = await createAccountMutation();
                 if(!createAccount) {
                     toast.error('회원가입 실패');
                 } else {
@@ -84,6 +84,7 @@ export default () => {
         firstName={firstName}
         lastName={lastName}
         email={email}
+        secret={secret}
         onSubmit={onSubmit} 
     />
   );

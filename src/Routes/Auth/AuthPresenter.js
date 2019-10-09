@@ -51,16 +51,18 @@ export default ({
     firstName,
     lastName,
     email,
+    secret,
     onSubmit
 }) => (
     <Wrapper>
       <Form>
-        {action === "logIn" ? (
+        {action === "logIn" && (
           <form onSubmit={onSubmit}>
             <Input placeholder={"Email"} {...email} type="email" />
             <Button text={"Log in"} />
           </form>
-        ) : (
+        )}
+        {action === 'signUp' && (
           <form onSubmit={onSubmit}>
             <Input placeholder={"First name"} {...firstName}/>
             <Input placeholder={"Last name"} {...lastName}/>
@@ -68,6 +70,12 @@ export default ({
             <Input placeholder={"Username"} {...username}/>
             <Button text={"Sign up"} />
           </form>
+        )}
+        {action === 'confirm' && (
+            <form onSubmit={onSubmit}>
+                <Input placeholder="시크릿을 붙여주세여." required {...secret} />
+                <Button text={"확인"} />
+            </form>
         )}
       </Form>
       <StateChanger>
