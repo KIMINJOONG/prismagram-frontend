@@ -2,13 +2,14 @@ import React from "react";
 import styled from "styled-components";
 import FatText from "../FatText";
 import Avatar from "../Avatar";
-import { HeartFull, HeartEmpty, Comment } from "../Icons";
+import { HeartFull, HeartEmpty, Comment as CommentIcon } from "../Icons";
 import TextareaAutoSize from 'react-autosize-textarea';
 
 const Post = styled.div`
   ${props => props.theme.whiteBox};
   width: 100%;
   max-width: 600px;
+  user-select: none;
   margin-bottom: 25px;
 `;
 
@@ -88,6 +89,16 @@ const Textarea = styled(TextareaAutoSize)`
     }
 `;
 
+const Comments = styled.ul`
+  margin-top: 10px;
+`;
+const Comment = styled.li`
+  margin-bottom: 7px;
+  span {
+    margin-right: 5px;
+  }
+`;
+
 export default ({
   user: { username, avatar },
   location,
@@ -97,7 +108,9 @@ export default ({
   createdAt,
   newComment,
   currentItem,
-  toggleLike
+  toggleLike,
+  onKeyUp,
+  comments
 }) => (
   <Post>
     <Header>
@@ -114,12 +127,25 @@ export default ({
       <Buttons>
         <Button onClick={toggleLike}>{isLiked ? <HeartFull /> : <HeartEmpty />}</Button>
         <Button>
-          <Comment />
+          <CommentIcon />
         </Button>
       </Buttons>
       <FatText text={likeCount === 1 ? "1 like" : `${likeCount} likes`} />
+      <Comments>
+        {comments.map(comment => (
+          <Comment key={comment.id}>
+            <FatText text={comment.user.username} />
+            {comment.text}
+          </Comment>
+        ))}
+      </Comments>
       <Timestamp>{createdAt}</Timestamp>
-      <Textarea placeholder={"댓글을 작성해주세요"} {...newComment} />
+      <Textarea 
+        placeholder={"댓글을 작성해주세요"} 
+        value={newComment.value} 
+        onChange={newComment.onChange} 
+        onKeyUp={onKeyUp}
+      />
     </Meta>
   </Post>
 );

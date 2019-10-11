@@ -46,7 +46,15 @@ const PostContainer = ({
             setIsLiked(true);
             setLikeCount(likeCountS + 1);
         }
-    }
+    };
+
+    const onKeyUp =(e) => {
+        const { keyCode } = e;
+        if(keyCode === 13) {
+            comment.setValue('');
+        }
+        return;
+    };
     
     return (
         <PostPresenter 
@@ -61,6 +69,7 @@ const PostContainer = ({
             setLikeCount={setLikeCount}
             currentItem={currentItem}
             toggleLike={toggleLike}
+            onKeyUp={onKeyUp}
         />
     )
 }
